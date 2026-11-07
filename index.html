@@ -9,7 +9,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width="720" height="1280" tabindex="-1"></canvas>
+      <canvas id="unity-canvas" width=720 height=1280 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -25,6 +25,35 @@
     </div>
     <script>
       var canvas = document.querySelector("#unity-canvas");
+
+      function remapPointerToCanvas(event) {
+        if (event.__canvasRelative) {
+          return;
+        }
+        var rect = canvas.getBoundingClientRect();
+        event.stopImmediatePropagation();
+        var relative = new MouseEvent(event.type, {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: event.clientX - rect.left,
+          clientY: event.clientY - rect.top,
+          screenX: event.screenX,
+          screenY: event.screenY,
+          button: event.button,
+          buttons: event.buttons,
+          movementX: event.movementX || 0,
+          movementY: event.movementY || 0,
+          ctrlKey: event.ctrlKey,
+          altKey: event.altKey,
+          shiftKey: event.shiftKey,
+          metaKey: event.metaKey
+        });
+        relative.__canvasRelative = true;
+        window.dispatchEvent(relative);
+      }
+      window.addEventListener("mousemove", remapPointerToCanvas, true);
+      window.addEventListener("mouseup", remapPointerToCanvas, true);
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=='error'.
